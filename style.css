@@ -1,42 +1,45 @@
 body
 {
-  color: white;
-  background: black;
-}
-span
-{
-  font-size: 30px;
-}
-#camera , #result
-{
-  border: 2px dashed white;
-  width: 350px;
-  height: 300px; 
-}
-#result_emotion_name ,#result_emotion_name2  
-{
-  color: black;
-}
-.emotion_name
-{
-  font-size: 40px;
-}
-.emoji
-{
-  font-size:48px;
+         background-color: black;
 }
 
-.heading
+h1
 {
-  font-size:18px;
-  border-radius:10px;
-  letter-spacing: 10px;
+         color: black;
+         background-color: whitesmoke;
 }
 
-label{
-  font-size:14px;
-  color: brown;
-  padding:6px;
-  border-radius: 10px;
-  background-color: wheat;
+#show_sketch
+{
+         float:right;
 }
+
+canvas
+{
+         border: 5px solid white;
+         border-radius: 20px;
+         animation-name: example;
+         animation-duration: 4s;
+         margin-top: 50px;
+         animation-iteration-count: infinite;
+}
+
+@keyframes example
+{
+         from {box-shadow: 1px 1px 38px rgb(219, 9, 9);}
+         to {box-shadow: 1px 1px 38px rgb(24, 8, 169);}
+}
+
+p
+
+ {
+         font-size:25px;
+         padding-top: 10px;
+         color: white;
+ }
+ 
+ span
+ {
+    color: white;
+    font-size: 20px;
+ }

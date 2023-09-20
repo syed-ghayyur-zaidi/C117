@@ -1,87 +1,155 @@
-prediction_1 = ""
-prediction_2 = ""
 
-Webcam.set({
-         width:350,
-         height:300,
-         image_format :'png',
-         png_quality:90
-});
+let random_number;
 
-         camera = document.getElementById("camera");
 
-Webcam.attach( '#camera' );
+random_number = Math.floor(Math.random() * quick_draw_data_set.length);
 
-function take_snapshot()
-{
-         Webcam.snap(function(data_uri) {
-                  document.getElementById("result").innerHTML = '<img id="captured_image" src="'+data_uri+'"/>';
-         });
+
+console.log(quick_draw_data_set[random_number]);
+
+
+let sketch = quick_draw_data_set[random_number];
+
+
+document.getElementById('sketch-to-be-drawn').textContent = 'Sketch To be Drawn: ' + sketch;
+
+let canvas;
+let drawn_sketch = "";
+let score = 0;
+let timer_counter = 0;
+let timer_check = "";
+
+
+const quick_draw_data_set = ["cat", "dog", "tree", ];
+
+
+function updateCanvas() {
+  background(255); 
+  const random_number = Math.floor(Math.random() * quick_draw_data_set.length);
+  sketch = quick_draw_data_set[random_number];
+  
+  document.getElementById("sketch").textContent = sketch;
 }
 
-console.log('ml5 version:', ml5.version);
 
-classifier = ml5.imageClassifier("https://teachablemachine.withgoogle.com/models/[...]"),modelLoaded
+function setup() {
+  
+  canvas = createCanvas(280, 280);
 
-function modelLoaded()
-{
-         console.log('Model Loaded!')
+  
+  canvas.position(windowWidth / 2 - 140, windowHeight / 2 - 140);
+
+ 
+  background(255);
+
+ 
+  draw();
+
+ 
+  check_sketch();
 }
 
-function check()
-{
-         img = document.getElementById('captured_image');
-         classifier.classify(img, gotResult);
+
+function draw() {
+  
+  if (drawn_sketch === sketch) {
+    
+    let answer_holder = "set";
+    score++;
+    
+    
+    document.getElementById("score").textContent = "Score: " + score;
+  }
 }
 
-function speak(){
-         var synth = window.speechSynthesis;
-         speak_data_1 = "The first predcition is" +prediction_1;
-         speak_data_2 = "And the second predcition is" +prediction_2;
-         var utterThis = new SpeechSynthesisUtterance(speak_data_1 + speak_data_2);
-         synth.speak(utterThis);
+
+function check_sketch() {
+  
+  timer_counter++;
+
+ 
+  document.getElementById("timer").textContent = "Timer: " + timer_counter;
+
+  
+  if (timer_counter > 400) {
+    
+    timer_counter = 0;
+    timer_check = "completed";
+
+  
+    drawn_sketch = "";
+    answer_holder = "";
+
+   
+    updateCanvas();
+  }
+
+  
+  if (timer_check === "completed" || answer_holder === "set") {
+    
+    timer_check = "";
+    answer_holder = "";
+
+    
+    updateCanvas();
+  }
 }
 
-function gotResult(error, results)
-{
-         if (error) {
-                  console.log(error);
-         } else {
-                  console.log(results);
-                  document.getElementById("result_emotion_name").innerHTML = results[0].label;
-                  document.getElementById("result_emotion_name2").innerHTML = results[1].label;
-                  prediction_1 = results[0].label;
-                  prediction_2 = results[1].label;
-                  speak();
-                  if(results[0].label == "happy")
-                  {
-                           document.getElementById("update_emoji").innerHTML = "&#128522;";
-                  }
+let classifier;
+let labelP;
+let confidenceP;
+let previousX, previousY;
+let strokeColor;
+let strokeWidth;
 
-                  if(results[0].label == "sad")
-                  {
-                           document.getElementById("update_emoji").innerHTML = "&#128532;";
-                  }
+function preload() {
+  
+  classifier = ml5.imageClassifier('DoodleNet', modelLoaded);
+}
 
-                  if(results[0].label == "angry")
-                  {
-                           document.getElementById("update_emoji").innerHTML = "&#128548;";
-                  }
+function setup() {
+  canvas = createCanvas(400, 400);
+  canvas.mouseReleased(classifyCanvas);
 
+  labelP = select('#label');
+  confidenceP = select('#confidence');
 
-                  if(results[1].label == "happy")
-                  {
-                           document.getElementById("update_emoji2").innerHTML = "&#128522;";
-                  }
+  strokeColor = 0;
+  strokeWidth = 4; 
 
-                  if(results[1].label == "sad")
-                  {
-                           document.getElementById("update_emoji2").innerHTML = "&#128532;";
-                  }
-                  
-                  if(results[1].label == "angry")
-                  {
-                           document.getElementById("update_emoji2").innerHTML = "&#128548;";
-                  }
-                  }
- }
+  background(255);
+}
+
+function draw() {
+  stroke(strokeColor);
+  strokeWeight(strokeWidth);
+
+  if (mouseIsPressed) {
+    line(previousX, previousY, mouseX, mouseY);
+  }
+
+  previousX = mouseX;
+  previousY = mouseY;
+}
+
+function classifyCanvas() {
+  canvas.loadPixels();
+  classifier.classify(canvas, gotResult);
+}
+
+function gotResult(error, results) {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log(results);
+    let label = results[0].label;
+    let confidence = nf(results[0].confidence * 100, 2); 
+    labelP.html('Your Sketch: ' + label);
+    confidenceP.html('Confidence: ' + confidence + '%');
+  }
+}
+
+function modelLoaded() {
+  console.log('Model loaded!');
+}
+
